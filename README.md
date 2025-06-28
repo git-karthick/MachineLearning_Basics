@@ -1,40 +1,43 @@
-Below is a high-level flowchart of your system, broken into two main phases: offline preprocessing (steps 1–4) and runtime voice control (step 5). You can copy & paste the Mermaid code into any Markdown editor that supports Mermaid to render the diagram.
+Here’s a mid-size diagram with two clear phases and seven steps—big enough to show the detail, but small enough to stay readable. Paste this into any Mermaid-aware editor:
 
 flowchart TD
-  subgraph Offline Preprocessing
-    A1[Start] --> A2[Scan directory for PPT files]
-    A2 --> A3[Assign unique IDs & map file paths]
-    A3 --> A4[Loop over each PPT]
-    A4 --> A5[Extract each slide’s contents]
-    A5 --> A6[Parse out text, images & keywords]
-    A6 --> A7[Build slide metadata (slide# ↔ keywords)]
-    A7 --> A8[Generate terminal-style command sequences]
-    A8 --> A9[Store command map for each PPT]
+  subgraph 1. Preprocessing
+    A[Scan folder for PPT files] 
+    B[Extract each slide’s text & images]
+    C[Generate keywords per slide]
+    D[Build lookup: “keyword → PPT command”]
   end
 
-  subgraph Runtime Voice Control
-    B1[Await user voice input] --> B2[Convert voice to text]
-    B2 --> B3[Feed text into LLM]
-    B3 --> B4[LLM outputs a PPT command]
-    B4 --> B5[Execute command on target PPT]
-    B5 --> B6[Presentation updates (e.g. go to slide X)]
-    B6 --> B1
+  subgraph 2. Runtime Control
+    E[Listens for voice input]
+    F[Convert speech to text]
+    G[Match text → prebuilt command]
+    H[Execute command on selected PPT]
+    I[Provide visual/audible feedback]
+    E --> F --> G --> H --> I --> E
   end
 
-  A9 --> B1
+  A --> B --> C --> D --> E
 
-Explanation of the blocks:
-	1.	Scan directory for PPTs
-	•	Look in a specified folder (or set of folders) and list all PowerPoint files.
-	2.	Assign unique IDs & map file paths
-	•	Give each file a distinct identifier (e.g. PPT1, PPT2) and record its name/location.
-	3.	Extract & index slide contents
-	•	For each PPT, pull out each slide’s text, images, and automatically extract keywords.
-	4.	Generate terminal-style sequences
-	•	Precompute the exact commands you’ll need (e.g. open PPT1, goto slide 3) and store them in a lookup table keyed by keywords or slide number.
-	5.	Voice control loop
-	•	Voice → Text: Use a speech-to-text engine.
-	•	Text → Command: Feed the transcription into a trained LLM which maps phrases like “next slide” or “show me slide five” into one of your precomputed terminal commands.
-	•	Execute & Update: Run the command on your presentation engine and display the requested slide.
+Step-by-step:
+	1.	Scan folder for PPT files
+Locate all PowerPoints and assign them IDs (PPT1, PPT2, …).
+	2.	Extract each slide’s text & images
+Pull the raw content from every slide in each PPT.
+	3.	Generate keywords per slide
+Use simple NLP (or manual tags) to pick 3–5 keywords for each slide.
+	4.	Build lookup: “keyword → PPT command”
+Precompute commands—e.g. open PPT2, goto slide 5—and index them by keyword.
 
-This two-phase design keeps the heavy lifting offline, so at runtime the system is just converting speech to text, mapping to a command, and executing it. Let me know if you need any adjustments or more detailed breakdowns!
+⸻
+
+	5.	Listens for voice input
+Idle until the presenter speaks a command.
+	6.	Convert speech to text
+Route audio through your speech-to-text engine.
+	7.	Match text → prebuilt command
+Look up the keywords/phrases in your command table (or via an LLM).
+	8.	Execute command on selected PPT
+Run the terminal or API call to change slides, open files, etc.
+	9.	Provide visual/audible feedback
+Confirm the action (e.g. “Going to slide five”) before returning to listening.
